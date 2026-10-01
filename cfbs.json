@@ -62,6 +62,7 @@
     "policy-builder": {
       "schema_version": 1,
       "folders": [],
+      "policy_structure": "single",
       "files": [
         {
           "id": "389c2120-04ae-4d80-bfa4-101074c52a41",
@@ -228,7 +229,7 @@
               "label": "Publish the demo landing page",
               "params": {
                 "destination": "/var/www/html/index.html",
-                "template_content": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>CFEngine Policy Builder demo project</title>\n  <style>\n    :root { color-scheme: light dark; --accent: #0b7ad1; --ink: #1f2933; --muted: #5f6c7b; --card: #ffffff; --page: #eef2f7; }\n    @media (prefers-color-scheme: dark) { :root { --ink: #e6edf3; --muted: #9aa7b4; --card: #161b22; --page: #0d1117; } }\n    * { box-sizing: border-box; }\n    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px;\n           font: 16px/1.5 system-ui, -apple-system, \"Segoe UI\", sans-serif; color: var(--ink); background: var(--page); }\n    main { width: min(640px, 100%); background: var(--card); border-radius: 16px; padding: 40px;\n           box-shadow: 0 12px 40px rgba(15, 23, 42, 0.12); border-top: 6px solid var(--accent); }\n    h1 { margin: 0 0 8px; font-size: 28px; }\n    p { margin: 0 0 24px; color: var(--muted); }\n    dl { display: grid; grid-template-columns: max-content 1fr; gap: 8px 24px; margin: 0; }\n    dt { color: var(--muted); }\n    dd { margin: 0; font-family: ui-monospace, \"SF Mono\", Menlo, monospace; }\n    .badge { display: inline-block; margin-bottom: 16px; padding: 2px 10px; border-radius: 999px;\n             background: var(--accent); color: #fff; font-size: 13px; font-weight: 600; }\n    footer { margin-top: 32px; font-size: 13px; color: var(--muted); }\n  </style>\n</head>\n<body>\n  <main>\n    {{#classes.webserver_role}}<span class=\"badge\">Web server role</span>{{/classes.webserver_role}}\n    <h1>CFEngine Policy Builder demo project</h1>\n    <p>This page, the nginx it runs on and everything around them were set up by policy built visually in CFEngine Policy Builder.</p>\n    <dl>\n      <dt>Host</dt><dd>{{{vars.sys.fqhost}}}</dd>\n      <dt>Operating system</dt><dd>{{{vars.sys.flavor}}}</dd>\n      <dt>nginx workers</dt><dd>{{{vars.common_vars.worker_processes}}}</dd>\n      <dt>CFEngine</dt><dd>{{{vars.sys.cf_version}}}</dd>\n    </dl>\n    <footer>Rendered by cf-agent from a Mustache template.</footer>\n  </main>\n</body>\n</html>\n",
+                "template_content": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>CFEngine Policy Builder demo project</title>\n  <style>\n    :root { color-scheme: light dark; --accent: #0b7ad1;  --ink: #1f2933; --muted: #5f6c7b; --card: #ffffff; --page: #eef2f7; }\n    @media (prefers-color-scheme: dark) { :root { --ink: #e6edf3; --muted: #9aa7b4; --card: #161b22; --page: #0d1117; } }\n    * { box-sizing: border-box; }\n    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px;\n           font: 16px/1.5 system-ui, -apple-system, \"Segoe UI\", sans-serif; color: var(--ink); background: var(--page); }\n    main { width: min(640px, 100%); background: var(--card); border-radius: 16px; padding: 40px;\n           box-shadow: 0 12px 40px rgba(15, 23, 42, 0.12); border-top: 6px solid var(--accent); }\n    h1 { margin: 0 0 8px; font-size: 28px; }\n    p { margin: 0 0 24px; color: var(--muted); }\n    dl { display: grid; grid-template-columns: max-content 1fr; gap: 8px 24px; margin: 0; }\n    dt { color: var(--muted); }\n    dd { margin: 0; font-family: ui-monospace, \"SF Mono\", Menlo, monospace; }\n    .badge { display: inline-block; margin-bottom: 16px; padding: 2px 10px; border-radius: 999px;\n             background: var(--accent); color: #fff; font-size: 13px; font-weight: 600; }\n    footer { margin-top: 32px; font-size: 13px; color: var(--muted); }\n  </style>\n</head>\n<body>\n  <main>\n    {{#classes.webserver_role}}<span class=\"badge\">Web server role</span>{{/classes.webserver_role}}\n    <h1>CFEngine Policy Builder demo project</h1>\n    <p>This page, the nginx it runs on and everything around them were set up by policy built visually in CFEngine Policy Builder.</p>\n    <dl>\n      <dt>Host</dt><dd>{{{vars.sys.fqhost}}}</dd>\n      <dt>Operating system</dt><dd>{{{vars.sys.flavor}}}</dd>\n      <dt>nginx workers</dt><dd>{{{vars.common_vars.worker_processes}}}</dd>\n      <dt>CFEngine</dt><dd>{{{vars.sys.cf_version}}}</dd>\n    </dl>\n    <footer>Rendered by cf-agent from a Mustache template.</footer>\n  </main>\n</body>\n</html>\n",
                 "mode": "644",
                 "owner": "root",
                 "group": "root"
@@ -270,6 +271,22 @@
                 "message": "Web server provisioning complete"
               },
               "instanceId": "8b291a2a-fcbe-4490-8f25-886c9d380842"
+            },
+            {
+              "blockId": "define-variable",
+              "label": "Define Variable",
+              "params": {},
+              "entries": [
+                {
+                  "id": "af775074-02e2-48fb-8731-64720c601d9b",
+                  "valueSourceId": "literal",
+                  "params": {
+                    "variable_name": "test",
+                    "value": "pook"
+                  }
+                }
+              ],
+              "instanceId": "fc6475ea-32c0-4cc2-8fd1-e007dd6ab2e0"
             }
           ],
           "edges": [
@@ -324,7 +341,7 @@
           "layout": {
             "positions": {
               "05b043da-6828-4b5f-a248-3a37c3d06dde": {
-                "x": 340,
+                "x": 280,
                 "y": 0
               },
               "de310bef-a463-4f03-b4d4-b26cbc413d3c": {
@@ -362,14 +379,23 @@
               "8b291a2a-fcbe-4490-8f25-886c9d380842": {
                 "x": 60,
                 "y": 1680
+              },
+              "fc6475ea-32c0-4cc2-8fd1-e007dd6ab2e0": {
+                "x": -240,
+                "y": 1860
               }
             },
             "groups": [],
-            "derived_positions": {}
+            "derived_positions": {
+              "if|webserver_role": {
+                "x": -800,
+                "y": 720
+              }
+            }
           }
         }
       ],
-      "current_file_id": "389c2120-04ae-4d80-bfa4-101074c52a41",
+      "current_file_id": "01e9cd3e-a715-4b79-ad11-b3f474d76210",
       "tool_version": "0.1.0",
       "generated": [
         "./common.cf",

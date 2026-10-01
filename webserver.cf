@@ -8,26 +8,26 @@ bundle agent webserver
       if => "webserver_role",
       classes => results("bundle", "webserver_install_web_server_package");
 
-    "Remove conflicting Apache"
-      usebundle => webserver_remove_conflicting_apache,
-      if => "webserver_role";
-
     "Render nginx config"
       usebundle => webserver_render_nginx_config,
       if => "webserver_install_web_server_package_kept|webserver_install_web_server_package_repaired",
       classes => results("bundle", "webserver_render_nginx_config");
 
-    "Restart nginx on config change"
-      usebundle => webserver_restart_nginx_on_config_change,
-      if => "webserver_render_nginx_config_repaired";
+    "Publish the demo landing page"
+      usebundle => webserver_publish_the_demo_landing_page,
+      if => "webserver_install_web_server_package_kept|webserver_install_web_server_package_repaired";
 
     "Keep nginx running"
       usebundle => webserver_keep_nginx_running,
       if => "webserver_install_web_server_package_kept|webserver_install_web_server_package_repaired";
 
-    "Publish the demo landing page"
-      usebundle => webserver_publish_the_demo_landing_page,
-      if => "webserver_install_web_server_package_kept|webserver_install_web_server_package_repaired";
+    "Restart nginx on config change"
+      usebundle => webserver_restart_nginx_on_config_change,
+      if => "webserver_render_nginx_config_repaired";
+
+    "Remove conflicting Apache"
+      usebundle => webserver_remove_conflicting_apache,
+      if => "webserver_role";
 
     "Remove default nginx site"
       usebundle => webserver_remove_default_nginx_site;
@@ -43,12 +43,6 @@ bundle agent webserver_install_web_server_package
 {
   packages:
     "$(common_vars.webserver_package)" policy => "present";
-}
-
-bundle agent webserver_remove_conflicting_apache
-{
-  packages:
-    "apache2" policy => "absent";
 }
 
 bundle agent webserver_render_nginx_config
@@ -69,18 +63,6 @@ bundle agent webserver_render_nginx_config
       template_method => "mustache",
       perms => mog("644", "root", "root"),
       template_data => @(template_data);
-}
-
-bundle agent webserver_restart_nginx_on_config_change
-{
-  services:
-    "nginx" service_policy => "restart";
-}
-
-bundle agent webserver_keep_nginx_running
-{
-  services:
-    "nginx" service_policy => "start";
 }
 
 bundle agent webserver_publish_the_demo_landing_page
@@ -109,6 +91,24 @@ bundle agent webserver_publish_the_demo_landing_page
       template_method => "mustache",
       perms => mog("644", "root", "root"),
       template_data => @(template_data);
+}
+
+bundle agent webserver_keep_nginx_running
+{
+  services:
+    "nginx" service_policy => "start";
+}
+
+bundle agent webserver_restart_nginx_on_config_change
+{
+  services:
+    "nginx" service_policy => "restart";
+}
+
+bundle agent webserver_remove_conflicting_apache
+{
+  packages:
+    "apache2" policy => "absent";
 }
 
 bundle agent webserver_remove_default_nginx_site

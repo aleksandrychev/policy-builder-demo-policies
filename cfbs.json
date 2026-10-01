@@ -7,7 +7,10 @@
     {
       "name": "masterfiles",
       "description": "Official CFEngine Masterfiles Policy Framework (MPF).",
-      "tags": ["supported", "base"],
+      "tags": [
+        "supported",
+        "base"
+      ],
       "repo": "https://github.com/cfengine/masterfiles",
       "by": "https://github.com/cfengine",
       "version": "3.27.1",
@@ -21,7 +24,9 @@
     {
       "name": "./common.cf",
       "description": "Local policy file added using cfbs command line",
-      "tags": ["local"],
+      "tags": [
+        "local"
+      ],
       "added_by": "cfbs add",
       "steps": [
         "copy ./common.cf services/cfbs/common.cf",
@@ -31,7 +36,9 @@
     {
       "name": "./webserver.cf",
       "description": "Local policy file added using cfbs command line",
-      "tags": ["local"],
+      "tags": [
+        "local"
+      ],
       "added_by": "cfbs add",
       "steps": [
         "copy ./webserver.cf services/cfbs/webserver.cf",
@@ -42,9 +49,13 @@
     {
       "name": "./templates/",
       "description": "Local subdirectory added using cfbs command line",
-      "tags": ["local"],
+      "tags": [
+        "local"
+      ],
       "added_by": "cfbs add",
-      "steps": ["directory ./ services/cfbs/templates/"]
+      "steps": [
+        "directory ./ services/cfbs/templates/"
+      ]
     }
   ],
   "meta": {
@@ -86,7 +97,9 @@
                     {
                       "id": "aea06fc0-f658-4580-8734-d59c8878f7be",
                       "decoratorId": "grep",
-                      "params": { "pattern": "processor.*" }
+                      "params": {
+                        "pattern": "processor.*"
+                      }
                     },
                     {
                       "id": "172d4d96-a9fa-407a-bc6e-77243476f8a9",
@@ -96,7 +109,10 @@
                     {
                       "id": "cf442566-5b39-47cf-8a92-7704b441be23",
                       "decoratorId": "default-if-empty",
-                      "params": { "trigger": "0", "fallback": "auto" }
+                      "params": {
+                        "trigger": "0",
+                        "fallback": "auto"
+                      }
                     }
                   ],
                   "id": "d11c9aa6-8238-4547-9be2-8a1f6d080fa2"
@@ -119,7 +135,9 @@
               "entries": [
                 {
                   "valueSourceId": "always-true",
-                  "params": { "class_name": "webserver_role" },
+                  "params": {
+                    "class_name": "webserver_role"
+                  },
                   "id": "0c0f3948-5f58-4b94-9b29-695109c4ad0b"
                 }
               ],
@@ -130,8 +148,14 @@
           "order": [],
           "layout": {
             "positions": {
-              "92cb3c2f-1b31-4674-b890-9ad9dc8a292f": { "x": 0, "y": 0 },
-              "660af4d0-7e32-4db8-a3f7-32dff37a2f70": { "x": 0, "y": 200 }
+              "92cb3c2f-1b31-4674-b890-9ad9dc8a292f": {
+                "x": 0,
+                "y": 0
+              },
+              "660af4d0-7e32-4db8-a3f7-32dff37a2f70": {
+                "x": 0,
+                "y": 200
+              }
             },
             "groups": [],
             "derived_positions": {}
@@ -146,7 +170,9 @@
             {
               "blockId": "install-package",
               "label": "Install web server package",
-              "params": { "package_name": "$(common_vars.webserver_package)" },
+              "params": {
+                "package_name": "$(common_vars.webserver_package)"
+              },
               "condition": {
                 "mode": "if",
                 "kind": "class",
@@ -157,7 +183,9 @@
             {
               "blockId": "remove-package",
               "label": "Remove conflicting Apache",
-              "params": { "package_name": "apache2" },
+              "params": {
+                "package_name": "apache2"
+              },
               "condition": {
                 "mode": "if",
                 "kind": "class",
@@ -180,13 +208,19 @@
             {
               "blockId": "manage-service",
               "label": "Restart nginx on config change",
-              "params": { "service_name": "nginx", "action": "restart" },
+              "params": {
+                "service_name": "nginx",
+                "action": "restart"
+              },
               "instanceId": "6e70f319-f6e4-4bd3-98ea-ded8486b4bec"
             },
             {
               "blockId": "manage-service",
               "label": "Keep nginx running",
-              "params": { "service_name": "nginx", "action": "start" },
+              "params": {
+                "service_name": "nginx",
+                "action": "start"
+              },
               "instanceId": "db539a3f-d2d3-4312-8277-e4d1c9b0d819"
             },
             {
@@ -204,7 +238,9 @@
             {
               "blockId": "remove-file",
               "label": "Remove default nginx site",
-              "params": { "path": "/etc/nginx/sites-enabled/default" },
+              "params": {
+                "path": "/etc/nginx/sites-enabled/default"
+              },
               "instanceId": "53655ef8-8a20-4206-b556-5625d8e96ab2"
             },
             {
@@ -221,13 +257,18 @@
             {
               "blockId": "manage-users",
               "label": "Create deploy user",
-              "params": { "username": "deploy", "state": "present" },
+              "params": {
+                "username": "deploy",
+                "state": "present"
+              },
               "instanceId": "bd3e4dd5-eb8b-4827-8b48-f384151aab2b"
             },
             {
               "blockId": "report-message",
               "label": "Report provisioning done",
-              "params": { "message": "Web server provisioning complete" },
+              "params": {
+                "message": "Web server provisioning complete"
+              },
               "instanceId": "8b291a2a-fcbe-4490-8f25-886c9d380842"
             }
           ],
@@ -235,35 +276,46 @@
             {
               "source": "05b043da-6828-4b5f-a248-3a37c3d06dde",
               "target": "d9eba958-a43e-432f-826a-f474850ba5f1",
-              "outcomes": ["kept", "repaired"],
+              "outcomes": [
+                "kept",
+                "repaired"
+              ],
               "id": "e749565b-0124-4c2d-aeaa-9ad92104b4ef"
             },
             {
               "source": "05b043da-6828-4b5f-a248-3a37c3d06dde",
               "target": "db539a3f-d2d3-4312-8277-e4d1c9b0d819",
-              "outcomes": ["kept", "repaired"],
+              "outcomes": [
+                "kept",
+                "repaired"
+              ],
               "id": "a218e06a-8f21-443f-a4bb-5cf24efb327c"
             },
             {
               "source": "05b043da-6828-4b5f-a248-3a37c3d06dde",
               "target": "9a697a99-220a-48dd-8999-d6c9dc26f3f1",
-              "outcomes": ["kept", "repaired"],
+              "outcomes": [
+                "kept",
+                "repaired"
+              ],
               "id": "4168cfd1-ff2c-4121-812c-eb48d9f32b20"
             },
             {
               "source": "d9eba958-a43e-432f-826a-f474850ba5f1",
               "target": "6e70f319-f6e4-4bd3-98ea-ded8486b4bec",
-              "outcomes": ["repaired"],
+              "outcomes": [
+                "repaired"
+              ],
               "id": "1aef75e5-e877-4466-883f-ccf3dff25b27"
             }
           ],
           "order": [
             "05b043da-6828-4b5f-a248-3a37c3d06dde",
-            "de310bef-a463-4f03-b4d4-b26cbc413d3c",
             "d9eba958-a43e-432f-826a-f474850ba5f1",
-            "6e70f319-f6e4-4bd3-98ea-ded8486b4bec",
-            "db539a3f-d2d3-4312-8277-e4d1c9b0d819",
             "9a697a99-220a-48dd-8999-d6c9dc26f3f1",
+            "db539a3f-d2d3-4312-8277-e4d1c9b0d819",
+            "6e70f319-f6e4-4bd3-98ea-ded8486b4bec",
+            "de310bef-a463-4f03-b4d4-b26cbc413d3c",
             "53655ef8-8a20-4206-b556-5625d8e96ab2",
             "09f48486-83b0-43b2-9c8a-469cb367b766",
             "bd3e4dd5-eb8b-4827-8b48-f384151aab2b",
@@ -271,23 +323,53 @@
           ],
           "layout": {
             "positions": {
-              "05b043da-6828-4b5f-a248-3a37c3d06dde": { "x": 0, "y": 0 },
-              "de310bef-a463-4f03-b4d4-b26cbc413d3c": { "x": 0, "y": 160 },
-              "d9eba958-a43e-432f-826a-f474850ba5f1": { "x": 0, "y": 320 },
-              "6e70f319-f6e4-4bd3-98ea-ded8486b4bec": { "x": 0, "y": 560 },
-              "db539a3f-d2d3-4312-8277-e4d1c9b0d819": { "x": 0, "y": 740 },
-              "9a697a99-220a-48dd-8999-d6c9dc26f3f1": { "x": 0, "y": 920 },
-              "53655ef8-8a20-4206-b556-5625d8e96ab2": { "x": 0, "y": 1160 },
-              "09f48486-83b0-43b2-9c8a-469cb367b766": { "x": 0, "y": 1320 },
-              "bd3e4dd5-eb8b-4827-8b48-f384151aab2b": { "x": 0, "y": 1540 },
-              "8b291a2a-fcbe-4490-8f25-886c9d380842": { "x": 0, "y": 1720 }
+              "05b043da-6828-4b5f-a248-3a37c3d06dde": {
+                "x": 340,
+                "y": 0
+              },
+              "de310bef-a463-4f03-b4d4-b26cbc413d3c": {
+                "x": 60,
+                "y": 960
+              },
+              "d9eba958-a43e-432f-826a-f474850ba5f1": {
+                "x": 500,
+                "y": 300
+              },
+              "6e70f319-f6e4-4bd3-98ea-ded8486b4bec": {
+                "x": 540,
+                "y": 620
+              },
+              "db539a3f-d2d3-4312-8277-e4d1c9b0d819": {
+                "x": 160,
+                "y": 620
+              },
+              "9a697a99-220a-48dd-8999-d6c9dc26f3f1": {
+                "x": -240,
+                "y": 600
+              },
+              "53655ef8-8a20-4206-b556-5625d8e96ab2": {
+                "x": 60,
+                "y": 1140
+              },
+              "09f48486-83b0-43b2-9c8a-469cb367b766": {
+                "x": 60,
+                "y": 1300
+              },
+              "bd3e4dd5-eb8b-4827-8b48-f384151aab2b": {
+                "x": 60,
+                "y": 1500
+              },
+              "8b291a2a-fcbe-4490-8f25-886c9d380842": {
+                "x": 60,
+                "y": 1680
+              }
             },
             "groups": [],
             "derived_positions": {}
           }
         }
       ],
-      "current_file_id": "01e9cd3e-a715-4b79-ad11-b3f474d76210",
+      "current_file_id": "389c2120-04ae-4d80-bfa4-101074c52a41",
       "tool_version": "0.1.0",
       "generated": [
         "./common.cf",

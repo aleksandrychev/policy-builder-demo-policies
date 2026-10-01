@@ -1,0 +1,17 @@
+user www-data;
+worker_processes {{{vars.common_vars.worker_processes}}};
+
+events {
+    worker_connections {{{vars.common_vars.worker_connections}}};
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    server {
+        listen 80;
+        server_name example.com;
+        root /var/www/html;
+    }
+}

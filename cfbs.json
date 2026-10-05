@@ -7,7 +7,10 @@
     {
       "name": "masterfiles",
       "description": "Official CFEngine Masterfiles Policy Framework (MPF).",
-      "tags": ["supported", "base"],
+      "tags": [
+        "supported",
+        "base"
+      ],
       "repo": "https://github.com/cfengine/masterfiles",
       "by": "https://github.com/cfengine",
       "version": "3.27.1",
@@ -21,7 +24,9 @@
     {
       "name": "./common.cf",
       "description": "Local policy file added using cfbs command line",
-      "tags": ["local"],
+      "tags": [
+        "local"
+      ],
       "added_by": "cfbs add",
       "steps": [
         "copy ./common.cf services/cfbs/common.cf",
@@ -31,7 +36,9 @@
     {
       "name": "./webserver.cf",
       "description": "Local policy file added using cfbs command line",
-      "tags": ["local"],
+      "tags": [
+        "local"
+      ],
       "added_by": "cfbs add",
       "steps": [
         "copy ./webserver.cf services/cfbs/webserver.cf",
@@ -42,7 +49,9 @@
     {
       "name": "./security.cf",
       "description": "Local policy file added using cfbs command line",
-      "tags": ["local"],
+      "tags": [
+        "local"
+      ],
       "added_by": "cfbs add",
       "steps": [
         "copy ./security.cf services/cfbs/security.cf",
@@ -53,9 +62,13 @@
     {
       "name": "./templates/",
       "description": "Local subdirectory added using cfbs command line",
-      "tags": ["local"],
+      "tags": [
+        "local"
+      ],
       "added_by": "cfbs add",
-      "steps": ["directory ./ services/cfbs/templates/"]
+      "steps": [
+        "directory ./ services/cfbs/templates/"
+      ]
     }
   ]
 }

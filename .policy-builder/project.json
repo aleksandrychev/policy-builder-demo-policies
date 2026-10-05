@@ -1,0 +1,559 @@
+{
+  "schema_version": 2,
+  "name": "Nginx Web Server Demo",
+  "module_name": "nginx-web-server-demo",
+  "folders": [],
+  "files": [
+    {
+      "id": "e97e2eb0-6f27-45c6-b012-4e6b5c48360e",
+      "name": "Common",
+      "bundle": "common",
+      "path": "./common.cf",
+      "description": "Settings the other files share. It names the nginx package, sizes its workers from the CPU count, and caps connections per worker. It also defines the webserver_role class that marks a host as a web server.",
+      "blocks": [
+        {
+          "blockId": "define-variable",
+          "label": "Nginx settings",
+          "params": {},
+          "entries": [
+            {
+              "valueSourceId": "literal",
+              "params": {
+                "variable_name": "webserver_package",
+                "value": "nginx"
+              },
+              "id": "e12ecab4-95c1-4b13-b85d-005e5dd70d45"
+            },
+            {
+              "valueSourceId": "file-lines",
+              "params": {
+                "variable_name": "worker_processes",
+                "path": "/proc/cpuinfo",
+                "comment": "",
+                "split": "\\n",
+                "max_entries": "1000",
+                "max_bytes": "1048576"
+              },
+              "sampleInput": "processor\t: 0\nmodel name\t: Example CPU\nprocessor\t: 1\nmodel name\t: Example CPU",
+              "decorators": [
+                {
+                  "id": "fec25917-982d-4658-b265-119808ad93ff",
+                  "decoratorId": "grep",
+                  "params": {
+                    "pattern": "processor.*"
+                  }
+                },
+                {
+                  "id": "b2bd058e-ab34-4e31-95f2-05e4b229872d",
+                  "decoratorId": "length",
+                  "params": {}
+                },
+                {
+                  "id": "66025bda-fe7f-4b71-82a5-a3cf4363ca13",
+                  "decoratorId": "default-if-empty",
+                  "params": {
+                    "trigger": "0",
+                    "fallback": "auto"
+                  }
+                }
+              ],
+              "id": "739c123f-7384-4c33-9c06-e3cb64e4ec53"
+            },
+            {
+              "valueSourceId": "literal",
+              "params": {
+                "variable_name": "worker_connections",
+                "value": "1024"
+              },
+              "id": "dd1adad5-609f-4f3c-8d6c-9b77131cfbe4"
+            }
+          ],
+          "instanceId": "e842343c-0e9a-4b06-93a9-cbdc18456b8a"
+        },
+        {
+          "blockId": "define-class",
+          "label": "Web server role",
+          "params": {},
+          "entries": [
+            {
+              "valueSourceId": "always-true",
+              "params": {
+                "class_name": "webserver_role"
+              },
+              "id": "20c1ce0b-d197-494c-ba5d-accb29157b51"
+            }
+          ],
+          "instanceId": "03e5d186-135a-4812-be4c-36ff7809a366"
+        }
+      ],
+      "edges": [],
+      "groups": [],
+      "order": [],
+      "layout": {
+        "positions": {
+          "e842343c-0e9a-4b06-93a9-cbdc18456b8a": {
+            "x": -440,
+            "y": 0
+          },
+          "03e5d186-135a-4812-be4c-36ff7809a366": {
+            "x": -440,
+            "y": 280
+          }
+        },
+        "groups": [],
+        "derived_positions": {}
+      }
+    },
+    {
+      "id": "76fbc879-b2c2-46ce-a2ef-34714164afa6",
+      "name": "Webserver",
+      "bundle": "webserver",
+      "path": "./webserver.cf",
+      "description": "Turns a webserver_role host into an nginx web server. It installs nginx, removes a conflicting Apache, renders nginx.conf from a template and restarts nginx only when that file changes. It keeps the service running and publishes a landing page. It also tidies up: removes the default site, locks down config permissions, prunes old logs and creates a deploy user.",
+      "blocks": [
+        {
+          "blockId": "install-package",
+          "label": "Install web server package",
+          "params": {
+            "package_name": "$(common_vars.webserver_package)"
+          },
+          "condition": {
+            "mode": "if",
+            "kind": "class",
+            "className": "webserver_role"
+          },
+          "instanceId": "07f54456-b95a-44b8-88f3-bb6f634d171a"
+        },
+        {
+          "blockId": "remove-package",
+          "label": "Remove conflicting Apache",
+          "params": {
+            "package_name": "apache2"
+          },
+          "condition": {
+            "mode": "if",
+            "kind": "class",
+            "className": "webserver_role"
+          },
+          "instanceId": "4e549b72-8e78-4980-8e80-67eb5681dd79"
+        },
+        {
+          "blockId": "render-template",
+          "label": "Render nginx config",
+          "params": {
+            "destination": "/etc/nginx/nginx.conf",
+            "template_content": "user www-data;\nworker_processes {{{vars.common_vars.worker_processes}}};\n\nevents {\n    worker_connections {{{vars.common_vars.worker_connections}}};\n}\n\nhttp {\n    include /etc/nginx/mime.types;\n    default_type application/octet-stream;\n\n    server {\n        listen 80;\n        server_name example.com;\n        root /var/www/html;\n    }\n}\n",
+            "mode": "644",
+            "owner": "root",
+            "group": "root"
+          },
+          "instanceId": "003acbc7-ef89-43b0-86ea-3991c356398a"
+        },
+        {
+          "blockId": "manage-service",
+          "label": "Restart nginx on config change",
+          "params": {
+            "service_name": "nginx",
+            "action": "restart"
+          },
+          "instanceId": "a2e88524-a5a6-4d7a-93d2-e8bcfd67e785"
+        },
+        {
+          "blockId": "manage-service",
+          "label": "Keep nginx running",
+          "params": {
+            "service_name": "nginx",
+            "action": "start"
+          },
+          "instanceId": "6fe93a8f-cc78-4e94-a047-d67d339cd77a"
+        },
+        {
+          "blockId": "create-directory",
+          "label": "Create web root",
+          "params": {
+            "path": "/var/www/html",
+            "mode": "755",
+            "owner": "root",
+            "group": "root"
+          },
+          "instanceId": "ee43fc82-4423-4955-8ff0-c8c574e553eb"
+        },
+        {
+          "blockId": "render-template",
+          "label": "Publish the demo landing page",
+          "params": {
+            "destination": "/var/www/html/index.html",
+            "template_content": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>CFEngine Policy Builder demo project</title>\n  <style>\n    :root { color-scheme: light dark; --accent: #0b7ad1; --ink: #1f2933; --muted: #5f6c7b; --card: #ffffff; --page: #eef2f7; }\n    @media (prefers-color-scheme: dark) { :root { --ink: #e6edf3; --muted: #9aa7b4; --card: #161b22; --page: #0d1117; } }\n    * { box-sizing: border-box; }\n    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px;\n           font: 16px/1.5 system-ui, -apple-system, \"Segoe UI\", sans-serif; color: var(--ink); background: var(--page); }\n    main { width: min(640px, 100%); background: var(--card); border-radius: 16px; padding: 40px;\n           box-shadow: 0 12px 40px rgba(15, 23, 42, 0.12); border-top: 6px solid var(--accent); }\n    h1 { margin: 0 0 8px; font-size: 28px; }\n    p { margin: 0 0 24px; color: var(--muted); }\n    dl { display: grid; grid-template-columns: max-content 1fr; gap: 8px 24px; margin: 0; }\n    dt { color: var(--muted); }\n    dd { margin: 0; font-family: ui-monospace, \"SF Mono\", Menlo, monospace; }\n    .badge { display: inline-block; margin-bottom: 16px; padding: 2px 10px; border-radius: 999px;\n             background: var(--accent); color: #fff; font-size: 13px; font-weight: 600; }\n    footer { margin-top: 32px; font-size: 13px; color: var(--muted); }\n  </style>\n</head>\n<body>\n  <main>\n    {{#classes.webserver_role}}<span class=\"badge\">Web server role</span>{{/classes.webserver_role}}\n    <h1>CFEngine Policy Builder demo project</h1>\n    <p>This page, the nginx it runs on and everything around them were set up by policy built visually in CFEngine Policy Builder.</p>\n    <dl>\n      <dt>Host</dt><dd>{{{vars.sys.fqhost}}}</dd>\n      <dt>Operating system</dt><dd>{{{vars.sys.flavor}}}</dd>\n      <dt>nginx workers</dt><dd>{{{vars.common_vars.worker_processes}}}</dd>\n      <dt>CFEngine</dt><dd>{{{vars.sys.cf_version}}}</dd>\n    </dl>\n    <footer>Rendered by cf-agent from a Mustache template.</footer>\n  </main>\n</body>\n</html>\n",
+            "mode": "644",
+            "owner": "root",
+            "group": "root"
+          },
+          "instanceId": "2d163568-dde7-4165-ae8e-db796426296f"
+        },
+        {
+          "blockId": "remove-file",
+          "label": "Remove default nginx site",
+          "params": {
+            "path": "/etc/nginx/sites-enabled/default"
+          },
+          "instanceId": "34da5d40-d7fc-4b82-b8e8-51ebe3d06e45"
+        },
+        {
+          "blockId": "set-permissions",
+          "label": "Lock down nginx config files",
+          "params": {
+            "path": "/etc/nginx/nginx.conf\n/etc/nginx/conf.d/default.conf",
+            "mode": "644",
+            "owner": "root",
+            "group": "root"
+          },
+          "instanceId": "bc41f97f-76a2-421a-8036-38d6c25924f5"
+        },
+        {
+          "blockId": "clean-up-old-files",
+          "label": "Prune old nginx logs",
+          "params": {
+            "directory": "/var/log/nginx",
+            "days": "30",
+            "depth": "inf"
+          },
+          "instanceId": "1d466ec7-b72c-4540-8b4e-f83e49c89c43"
+        },
+        {
+          "blockId": "manage-users",
+          "label": "Create deploy user",
+          "params": {
+            "username": "deploy",
+            "state": "present"
+          },
+          "instanceId": "4b8f4ef1-7acb-44c3-814c-92c908858b39"
+        },
+        {
+          "blockId": "report-message",
+          "label": "Report provisioning done",
+          "params": {
+            "message": "Web server provisioning complete"
+          },
+          "instanceId": "02938c84-c662-49ba-8cc7-493ac6d5edd3"
+        }
+      ],
+      "edges": [
+        {
+          "source": "07f54456-b95a-44b8-88f3-bb6f634d171a",
+          "target": "003acbc7-ef89-43b0-86ea-3991c356398a",
+          "outcomes": [
+            "kept",
+            "repaired"
+          ],
+          "id": "d922c700-6f60-4930-bbff-9983f7988d11"
+        },
+        {
+          "source": "07f54456-b95a-44b8-88f3-bb6f634d171a",
+          "target": "6fe93a8f-cc78-4e94-a047-d67d339cd77a",
+          "outcomes": [
+            "kept",
+            "repaired"
+          ],
+          "id": "5fc95395-7c24-447a-a48f-3953fdb5d0da"
+        },
+        {
+          "source": "07f54456-b95a-44b8-88f3-bb6f634d171a",
+          "target": "2d163568-dde7-4165-ae8e-db796426296f",
+          "outcomes": [
+            "kept",
+            "repaired"
+          ],
+          "id": "1295df86-796f-44b7-97ea-fdbcc9a6aaa1"
+        },
+        {
+          "source": "003acbc7-ef89-43b0-86ea-3991c356398a",
+          "target": "a2e88524-a5a6-4d7a-93d2-e8bcfd67e785",
+          "outcomes": [
+            "repaired"
+          ],
+          "id": "7c8d8fe7-6992-4723-835f-ff07bfb66f5a"
+        },
+        {
+          "source": "ee43fc82-4423-4955-8ff0-c8c574e553eb",
+          "target": "2d163568-dde7-4165-ae8e-db796426296f",
+          "outcomes": [
+            "kept",
+            "repaired"
+          ],
+          "id": "3632e871-27d1-4278-9876-15342cd900e7"
+        }
+      ],
+      "groups": [],
+      "order": [
+        "07f54456-b95a-44b8-88f3-bb6f634d171a",
+        "6fe93a8f-cc78-4e94-a047-d67d339cd77a",
+        "003acbc7-ef89-43b0-86ea-3991c356398a",
+        "a2e88524-a5a6-4d7a-93d2-e8bcfd67e785",
+        "4e549b72-8e78-4980-8e80-67eb5681dd79",
+        "ee43fc82-4423-4955-8ff0-c8c574e553eb",
+        "2d163568-dde7-4165-ae8e-db796426296f",
+        "34da5d40-d7fc-4b82-b8e8-51ebe3d06e45",
+        "bc41f97f-76a2-421a-8036-38d6c25924f5",
+        "1d466ec7-b72c-4540-8b4e-f83e49c89c43",
+        "4b8f4ef1-7acb-44c3-814c-92c908858b39",
+        "02938c84-c662-49ba-8cc7-493ac6d5edd3"
+      ],
+      "layout": {
+        "positions": {
+          "07f54456-b95a-44b8-88f3-bb6f634d171a": {
+            "x": 840,
+            "y": -40
+          },
+          "4e549b72-8e78-4980-8e80-67eb5681dd79": {
+            "x": 40,
+            "y": 620
+          },
+          "003acbc7-ef89-43b0-86ea-3991c356398a": {
+            "x": 1000,
+            "y": 320
+          },
+          "a2e88524-a5a6-4d7a-93d2-e8bcfd67e785": {
+            "x": 1000,
+            "y": 580
+          },
+          "6fe93a8f-cc78-4e94-a047-d67d339cd77a": {
+            "x": 420,
+            "y": 220
+          },
+          "ee43fc82-4423-4955-8ff0-c8c574e553eb": {
+            "x": 500,
+            "y": 680
+          },
+          "2d163568-dde7-4165-ae8e-db796426296f": {
+            "x": 560,
+            "y": 440
+          },
+          "34da5d40-d7fc-4b82-b8e8-51ebe3d06e45": {
+            "x": 580,
+            "y": 920
+          },
+          "bc41f97f-76a2-421a-8036-38d6c25924f5": {
+            "x": 580,
+            "y": 1060
+          },
+          "1d466ec7-b72c-4540-8b4e-f83e49c89c43": {
+            "x": 580,
+            "y": 1260
+          },
+          "4b8f4ef1-7acb-44c3-814c-92c908858b39": {
+            "x": 580,
+            "y": 1420
+          },
+          "02938c84-c662-49ba-8cc7-493ac6d5edd3": {
+            "x": 580,
+            "y": 1580
+          }
+        },
+        "groups": [],
+        "derived_positions": {
+          "if|webserver_role": {
+            "x": 60,
+            "y": -20
+          }
+        }
+      }
+    },
+    {
+      "id": "bd719f43-4324-4375-95fa-4f8816a238e2",
+      "name": "Security",
+      "bundle": "security",
+      "path": "./security.cf",
+      "description": "Baseline hardening for every host. Where an SSH server is installed, it tightens sshd_config and restarts SSH when that changes. It enforces permissions on the account files and reports when they change. It also sets a login banner in /etc/issue.",
+      "blocks": [
+        {
+          "blockId": "define-class",
+          "label": "SSH server present",
+          "params": {},
+          "entries": [
+            {
+              "valueSourceId": "check-file-exists",
+              "params": {
+                "class_name": "sshd_installed",
+                "path": "/etc/ssh/sshd_config"
+              },
+              "id": "813a852b-32d7-48c3-82d4-8866753304db"
+            }
+          ],
+          "instanceId": "36ae4551-aad6-441f-a827-5611d8a15733",
+          "groupId": "59e67646-2b46-46c8-a969-44eacf542efa"
+        },
+        {
+          "blockId": "set-config-values",
+          "label": "Harden SSH",
+          "params": {
+            "path": "/etc/ssh/sshd_config",
+            "format": "space",
+            "settings": "PermitRootLogin no\nMaxAuthTries 3\nX11Forwarding no"
+          },
+          "condition": {
+            "mode": "if",
+            "kind": "class",
+            "className": "sshd_installed"
+          },
+          "instanceId": "1077e6e1-07f0-4223-8487-9a1eb950ef77",
+          "groupId": "59e67646-2b46-46c8-a969-44eacf542efa"
+        },
+        {
+          "blockId": "manage-service",
+          "label": "Restart SSH on config change",
+          "params": {
+            "service_name": "ssh",
+            "action": "restart"
+          },
+          "instanceId": "3f52406a-ef3f-4ab1-a01a-a70bf4b13ecc",
+          "groupId": "59e67646-2b46-46c8-a969-44eacf542efa"
+        },
+        {
+          "blockId": "set-permissions",
+          "label": "Lock down account files",
+          "params": {
+            "path": "/etc/passwd\n/etc/group",
+            "mode": "644",
+            "owner": "root",
+            "group": "root"
+          },
+          "instanceId": "dd49e047-4c4e-41d3-a4bd-f79a790b2bed",
+          "groupId": "8f9ebcc8-2068-4ec2-abd0-27dc7158ef74"
+        },
+        {
+          "blockId": "set-permissions",
+          "label": "Protect password hashes",
+          "params": {
+            "path": "/etc/shadow",
+            "mode": "640",
+            "owner": "root",
+            "group": "shadow"
+          },
+          "instanceId": "da52317b-5118-4abe-a77d-9fab9bdb2b29",
+          "groupId": "8f9ebcc8-2068-4ec2-abd0-27dc7158ef74"
+        },
+        {
+          "blockId": "watch-file",
+          "label": "Watch account files",
+          "params": {
+            "path": "/etc/passwd\n/etc/group\n/etc/shadow"
+          },
+          "instanceId": "25cd5553-73db-4e75-a635-ce849956bfe6",
+          "groupId": "8f9ebcc8-2068-4ec2-abd0-27dc7158ef74"
+        },
+        {
+          "blockId": "report-message",
+          "label": "Report account changes",
+          "params": {
+            "message": "Local accounts changed on $(sys.fqhost)"
+          },
+          "instanceId": "723803f4-7e5b-4fc5-b4bb-8963fabb8da4",
+          "groupId": "8f9ebcc8-2068-4ec2-abd0-27dc7158ef74"
+        },
+        {
+          "blockId": "ensure-lines",
+          "label": "Login banner",
+          "params": {
+            "path": "/etc/issue",
+            "lines": "Authorized access only. Activity may be monitored.",
+            "create": "true"
+          },
+          "instanceId": "6b5a56af-cf96-4c4f-b2ae-171ddd389c38"
+        }
+      ],
+      "edges": [
+        {
+          "source": "1077e6e1-07f0-4223-8487-9a1eb950ef77",
+          "target": "3f52406a-ef3f-4ab1-a01a-a70bf4b13ecc",
+          "outcomes": [
+            "repaired"
+          ],
+          "id": "42984319-6b17-447d-aedd-69ffa7b24d57"
+        },
+        {
+          "source": "25cd5553-73db-4e75-a635-ce849956bfe6",
+          "target": "723803f4-7e5b-4fc5-b4bb-8963fabb8da4",
+          "outcomes": [
+            "repaired"
+          ],
+          "id": "c23ab900-5000-47e5-9eee-03a566b48be9"
+        }
+      ],
+      "groups": [
+        {
+          "id": "59e67646-2b46-46c8-a969-44eacf542efa",
+          "name": "SSH hardening"
+        },
+        {
+          "id": "8f9ebcc8-2068-4ec2-abd0-27dc7158ef74",
+          "name": "Account protection"
+        }
+      ],
+      "order": [
+        "1077e6e1-07f0-4223-8487-9a1eb950ef77",
+        "3f52406a-ef3f-4ab1-a01a-a70bf4b13ecc",
+        "dd49e047-4c4e-41d3-a4bd-f79a790b2bed",
+        "da52317b-5118-4abe-a77d-9fab9bdb2b29",
+        "25cd5553-73db-4e75-a635-ce849956bfe6",
+        "723803f4-7e5b-4fc5-b4bb-8963fabb8da4",
+        "6b5a56af-cf96-4c4f-b2ae-171ddd389c38"
+      ],
+      "layout": {
+        "positions": {
+          "36ae4551-aad6-441f-a827-5611d8a15733": {
+            "x": 720,
+            "y": 320
+          },
+          "1077e6e1-07f0-4223-8487-9a1eb950ef77": {
+            "x": 420,
+            "y": 60
+          },
+          "3f52406a-ef3f-4ab1-a01a-a70bf4b13ecc": {
+            "x": 240,
+            "y": 320
+          },
+          "dd49e047-4c4e-41d3-a4bd-f79a790b2bed": {
+            "x": 240,
+            "y": 660
+          },
+          "da52317b-5118-4abe-a77d-9fab9bdb2b29": {
+            "x": 240,
+            "y": 940
+          },
+          "25cd5553-73db-4e75-a635-ce849956bfe6": {
+            "x": 240,
+            "y": 1200
+          },
+          "723803f4-7e5b-4fc5-b4bb-8963fabb8da4": {
+            "x": 240,
+            "y": 1420
+          },
+          "6b5a56af-cf96-4c4f-b2ae-171ddd389c38": {
+            "x": 240,
+            "y": 1700
+          }
+        },
+        "groups": [
+          {
+            "id": "59e67646-2b46-46c8-a969-44eacf542efa",
+            "color": "info"
+          },
+          {
+            "id": "8f9ebcc8-2068-4ec2-abd0-27dc7158ef74",
+            "color": "warning"
+          }
+        ],
+        "derived_positions": {}
+      }
+    }
+  ],
+  "current_file_id": "76fbc879-b2c2-46ce-a2ef-34714164afa6",
+  "tool_version": "0.1.0",
+  "generated": [
+    "./common.cf",
+    "./webserver.cf",
+    "./templates/webserver_render_nginx_config.mustache",
+    "./templates/webserver_publish_the_demo_landing_page.mustache",
+    "./security.cf"
+  ]
+}

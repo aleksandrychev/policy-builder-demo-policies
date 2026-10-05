@@ -1,0 +1,61 @@
+{
+  "name": "Nginx Web Server Demo",
+  "description": "Policy built with CFEngine Policy Builder",
+  "type": "policy-set",
+  "git": true,
+  "build": [
+    {
+      "name": "masterfiles",
+      "description": "Official CFEngine Masterfiles Policy Framework (MPF).",
+      "tags": ["supported", "base"],
+      "repo": "https://github.com/cfengine/masterfiles",
+      "by": "https://github.com/cfengine",
+      "version": "3.27.1",
+      "commit": "15d8ca2ca951db3ddf197b90c9dea6ef75f5fa89",
+      "added_by": "cfbs init",
+      "steps": [
+        "run EXPLICIT_VERSION=3.27.1 EXPLICIT_RELEASE=1 ./prepare.sh -y",
+        "copy ./ ./"
+      ]
+    },
+    {
+      "name": "./common.cf",
+      "description": "Local policy file added using cfbs command line",
+      "tags": ["local"],
+      "added_by": "cfbs add",
+      "steps": [
+        "copy ./common.cf services/cfbs/common.cf",
+        "policy_files services/cfbs/common.cf"
+      ]
+    },
+    {
+      "name": "./webserver.cf",
+      "description": "Local policy file added using cfbs command line",
+      "tags": ["local"],
+      "added_by": "cfbs add",
+      "steps": [
+        "copy ./webserver.cf services/cfbs/webserver.cf",
+        "policy_files services/cfbs/webserver.cf",
+        "bundles webserver"
+      ]
+    },
+    {
+      "name": "./security.cf",
+      "description": "Local policy file added using cfbs command line",
+      "tags": ["local"],
+      "added_by": "cfbs add",
+      "steps": [
+        "copy ./security.cf services/cfbs/security.cf",
+        "policy_files services/cfbs/security.cf",
+        "bundles security"
+      ]
+    },
+    {
+      "name": "./templates/",
+      "description": "Local subdirectory added using cfbs command line",
+      "tags": ["local"],
+      "added_by": "cfbs add",
+      "steps": ["directory ./ services/cfbs/templates/"]
+    }
+  ]
+}
